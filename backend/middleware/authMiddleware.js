@@ -10,7 +10,7 @@ const validateToken = async (req, res, next) => {
                 if (err) {
                     return res.status(403).json({message: "User is not authorized"});
                 };
-                req.use = decoded.user || {id: decoded.id};
+                req.user = decoded.user || {id: decoded.id};
                 next();
             });
         } else {
