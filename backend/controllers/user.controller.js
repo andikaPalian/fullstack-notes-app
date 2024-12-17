@@ -37,11 +37,11 @@ const loginUser = async (req, res) => {
         };
         const user = await User.findOne({email});
         if (user && (await bcrypt.compare(password, user.password))) {
-            const token = jwt.sign({
+            const accessToken = jwt.sign({
                 id: user._id,
             }, process.env.ACCESS_TOKEN, {expiresIn: "1d"});
             user.password = undefined;
-            res.status(200).json({message: "User login successfully", data: {user, token}});
+            res.status(200).json({message: "User login successfully", data: {user, accessToken}});
         } else {
             return res.status(400).json({message:"Invalid Email or Password"});
         };

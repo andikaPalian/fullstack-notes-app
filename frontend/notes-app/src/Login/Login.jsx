@@ -1,24 +1,35 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PaswordInput from "../components/Input/PaswordInput";
+import axiosInstance from "../utils/axiosInstance";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email) {
-      setError("Email is required");
+    if (!email || !password) {
+      setError("Please fill all the fields");
       return;
     }
 
-    if (!password) {
-      setError("Pasword is required");
-      return;
+    try {
+      const response = await axiosInstance.post("/login", {
+        email,
+        password,
+      });
+      const { token } = response.data;
+      // Simpan token ke localstorage
+      localStorage.setItem("accessToken", token);
+      console.log("Login successfully", response.data);
+      navigate("/home");
+    } catch (error) {
+      setError(error.response?.data?.message || "Login Failed");
+      console.error("Login error", error.response?.data || error.message);
     }
-    setError("");
   };
   return (
     <div className="flex items-center justify-center mt-28">
@@ -37,7 +48,10 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           {error && <p className="pb-1 text-xs text-red-500">{error}</p>}
-          <button type="submit" className="w-full p-2 my-1 text-sm text-white rounded bg-primary hover:bg-purple-600">
+          <button
+            type="submit"
+            className="w-full p-2 my-1 text-sm text-white rounded bg-primary hover:bg-purple-600"
+          >
             Login
           </button>
           <p className="mt-4 text-sm text-center">

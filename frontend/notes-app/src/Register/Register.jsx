@@ -1,31 +1,34 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PaswordInput from "../components/Input/PaswordInput";
+import axiosInstance from "../utils/axiosInstance";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    if (!username) {
-      setError("username is required");
+    if (!username || !email || !password) {
+      setError("Please fill all the fields");
       return;
-    }
-
-    if (!email) {
-      setError("email is required");
-      return;
-    }
-
-    if (!password) {
-      setError("password is required");
-      return;
-    }
-
-    setError("");
+    };
+    try {
+      const response = await axiosInstance.post("/register", {
+        username,
+        email,
+        password,
+      });
+      console.log("Register response:", response.data);
+      // Redirect ke halaman login
+      navigate("/")
+    } catch (error) {
+      setError(error.response?.data?.message || "Registration failed");
+      console.error("Register error:", error.response?.data || error.message);
+    };
   };
   return (
     <div className="flex items-center justify-center mt-28">
