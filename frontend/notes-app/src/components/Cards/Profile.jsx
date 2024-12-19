@@ -6,6 +6,15 @@ const Profile = ({ userInfo, onLogout }) => {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleImageUpload = async (e) => {
+    e.preventDefault();
+    
+    // Validasi userInfo
+    if (!userInfo || !userInfo._id) {
+      console.error("User info not available:", userInfo);
+      alert("Please log in to upload a profile picture");
+      return;
+    }
+
     const file = e.target.files[0];
     if (!file) return;
 
@@ -25,6 +34,7 @@ const Profile = ({ userInfo, onLogout }) => {
     setIsUploading(true);
 
     try {
+      console.log('Making request to:', `/profile/${userInfo._id}`);
       const response = await axiosInstance.put(
         `/profile/${userInfo._id}`,
         formData,
@@ -32,15 +42,34 @@ const Profile = ({ userInfo, onLogout }) => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(progressEvent.loaded * 100 / progressEvent.total);
+            console.log("Upload progress:", percentCompleted, '%')
+          }
         }
       );
+      console.log('Upload response:', response.data);
       if (response.data?.data?.profileImage) {
         window.location.reload();
       }
     } catch (error) {
-      if (error.response?.status !== 401) {
-        alert("Failed to upload image. Please try again.");
+      console.error('Upload error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
+      });
+      
+      let errorMessage = 'Failed to upload image. Please try again.';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
       }
+      alert(errorMessage);
     } finally {
       setIsUploading(false);
     }

@@ -6,6 +6,7 @@ import Profile from '../Cards/Profile';
 const Navbar = ({userInfo}) => {
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
+    console.log('Navbar received userInfo:', userInfo);
 
     const onLogout = () => {
         localStorage.clear();

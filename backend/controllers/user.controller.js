@@ -54,4 +54,17 @@ const loginUser = async (req, res) => {
     };
 };
 
-module.exports = {registerUser, loginUser};
+const getUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        res.json({message: "Success get user info", data: user});
+    } catch (error) {
+        console.error("Error in getUser controller:", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            error: error.message || "An unexpected error occurred",
+        });
+    };
+};
+
+module.exports = {registerUser, loginUser, getUser};
