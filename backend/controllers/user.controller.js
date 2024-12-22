@@ -56,7 +56,13 @@ const loginUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({message: "User is not authorized"});
+        };
         const user = await User.findById(req.user.id).select("-password");
+        if (!user) {
+            return res.status(404).json({message: 'User not found'});
+        };
         res.json({message: "Success get user info", data: user});
     } catch (error) {
         console.error("Error in getUser controller:", error);

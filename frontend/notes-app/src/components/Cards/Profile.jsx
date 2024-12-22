@@ -7,6 +7,12 @@ const Profile = ({ userInfo, onLogout }) => {
 
   const handleImageUpload = async (e) => {
     e.preventDefault();
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("Please log in to upload a profile picture");
+      return;
+    };
     
     // Validasi userInfo
     if (!userInfo || !userInfo._id) {
